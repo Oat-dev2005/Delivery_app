@@ -219,9 +219,13 @@ class _HomepageCustomerState extends State<HomepageCustomer> {
                                     style: const TextStyle(fontSize: 14),
                                   ),
                                   const SizedBox(height: 4),
-                                  const Text(
-                                    "[1]: รอไรเดอร์มารับสินค้า",
-                                    style: TextStyle(fontSize: 14),
+                                  Text(
+                                    "[1]: ${data['status'] ?? 'ไม่มีสถานะ'}",
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.brown,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ],
                               ),

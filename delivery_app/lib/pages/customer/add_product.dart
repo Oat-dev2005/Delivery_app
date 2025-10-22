@@ -69,6 +69,7 @@ class _AddProductPageState extends State<AddProductPage> {
         "receiverName": receiverNameCtl.text,
         "receiverPhone": receiverPhoneCtl.text,
         "productImage": productImageBase64,
+        "status": "รอไรเดอร์มารับสินค้า",
       });
 
       ScaffoldMessenger.of(
