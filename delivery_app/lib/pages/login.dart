@@ -43,6 +43,7 @@ class LoginPage extends StatelessWidget {
                 builder: (context) => HomepageCustomer(
                   phone: phoneCtl.text, // 👉 ส่งเบอร์โทร
                   role: role, // 👉 ส่ง role
+                  userId: userId,
                 ),
               ),
             );
@@ -52,7 +53,8 @@ class LoginPage extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => HomepageRider(
                   phone: phoneCtl.text, // 👉 ส่งเบอร์โทร
-                  role: role, // 👉 ส่ง role
+                  role: role,
+                  userId: userId, // 👉 ส่ง role
                 ),
               ),
             );

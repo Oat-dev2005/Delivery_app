@@ -5,8 +5,14 @@ class HomepageRider extends StatefulWidget {
   // const HomepageRider({super.key});
   final String phone;
   final String role;
+  final String userId;
 
-  const HomepageRider({super.key, required this.phone, required this.role});
+  const HomepageRider({
+    super.key,
+    required this.phone,
+    required this.role,
+    required this.userId,
+  });
   @override
   State<HomepageRider> createState() => _HomepageRiderState();
 }

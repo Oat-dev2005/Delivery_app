@@ -61,13 +61,17 @@ class _RegisterPageState extends State<RegisterPage> {
       }
 
       // บันทึกข้อมูลลง Firestore (collection: Users)
-      await db.collection("Users").add(data);
+      var docRef = db.collection("Users").doc();
+      await docRef.set(data);
+
+      String userId = docRef.id;
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("สมัครสมาชิกสำเร็จ ✅")));
 
-      Navigator.pop(context);
+      // 🔹 ส่ง id ไปเก็บ (เพื่อส่งต่อไปหน้าอื่น)
+      Navigator.pop(context, userId);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -189,6 +193,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   // เบอร์โทร
                   TextField(
                     controller: phoneCtl,
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       hintText: "เบอร์โทร",
                       enabledBorder: OutlineInputBorder(
@@ -211,7 +216,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 12),
 
-                  // 👇 แสดงเฉพาะตอน role == customer
+                  // field เฉพาะสำหรับ customer
                   if (selectedRole == "customer") ...[
                     TextField(
                       controller: addressCtl,
@@ -270,7 +275,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 12),
                   ],
 
-                  // 👇 ตัวอย่าง field สำหรับ Rider
+                  // field เฉพาะสำหรับ Rider
                   if (selectedRole == "rider") ...[
                     TextField(
                       controller: vehicleCtl,
