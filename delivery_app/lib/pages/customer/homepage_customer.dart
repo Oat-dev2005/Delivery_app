@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_app/pages/customer/add_product.dart';
 import 'package:delivery_app/pages/customer/homepage_receiver.dart';
 import 'package:delivery_app/pages/login.dart';
+import 'package:delivery_app/pages/rider/ProductDetailPage.dart';
 import 'package:flutter/material.dart';
 
 class HomepageCustomer extends StatefulWidget {
@@ -26,62 +27,6 @@ class _HomepageCustomerState extends State<HomepageCustomer> {
   final FirebaseFirestore db = FirebaseFirestore.instance;
   String searchText = "";
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       title: const Text('ข่อยเป็นลูกค้า'),
-  //       automaticallyImplyLeading: false,
-  //       actions: [
-  //         PopupMenuButton<String>(
-  //           onSelected: (value) {
-  //             if (value == 'logout') {
-  //               Navigator.pushAndRemoveUntil(
-  //                 context,
-  //                 MaterialPageRoute(builder: (context) => const LoginPage()),
-  //                 (route) => false, // เคลียร์ทุกหน้าออกจาก stack
-  //               );
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(content: Text("ออกจากระบบสำเร็จ ✅")),
-  //               );
-  //             }
-  //           },
-  //           itemBuilder: (context) => [
-  //             const PopupMenuItem(value: 'logout', child: Text('ออกจากระบบ')),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //     body: Center(
-  //       child: Column(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           Text(
-  //             'เบอร์โทร : ${widget.phone}',
-  //             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-  //           ),
-  //           const SizedBox(height: 10),
-  //           Text(
-  //             'Role : ${widget.role}',
-  //             style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-  //           ),
-  //           const SizedBox(height: 20), // เว้นระยะ
-  //           ElevatedButton(
-  //             onPressed: () {
-  //               Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                   builder: (context) => AddProductPage(userId: widget.userId),
-  //                 ),
-  //               );
-  //             },
-  //             child: const Text("เพิ่มสินค้า"),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -171,66 +116,144 @@ class _HomepageCustomerState extends State<HomepageCustomer> {
                       final data =
                           products[index].data() as Map<String, dynamic>;
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFE5CC),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 🖼 รูปภาพสินค้า
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child:
-                                  data['productImage'] != null &&
-                                      data['productImage'].toString().isNotEmpty
-                                  ? Image.memory(
-                                      base64Decode(data['productImage']),
-                                      width: 80,
-                                      height: 80,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      'assets/no_image.png',
-                                      width: 80,
-                                      height: 80,
-                                    ),
-                            ),
-                            const SizedBox(width: 10),
+                      // return Container(
+                      //   margin: const EdgeInsets.symmetric(vertical: 8),
+                      //   padding: const EdgeInsets.all(8),
+                      //   decoration: BoxDecoration(
+                      //     color: const Color(0xFFFFE5CC),
+                      //     borderRadius: BorderRadius.circular(10),
+                      //   ),
+                      //   child: Row(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       // 🖼 รูปภาพสินค้า
+                      //       ClipRRect(
+                      //         borderRadius: BorderRadius.circular(8),
+                      //         child:
+                      //             data['productImage'] != null &&
+                      //                 data['productImage'].toString().isNotEmpty
+                      //             ? Image.memory(
+                      //                 base64Decode(data['productImage']),
+                      //                 width: 80,
+                      //                 height: 80,
+                      //                 fit: BoxFit.cover,
+                      //               )
+                      //             : Image.asset(
+                      //                 'assets/no_image.png',
+                      //                 width: 80,
+                      //                 height: 80,
+                      //               ),
+                      //       ),
+                      //       const SizedBox(width: 10),
 
-                            // 📋 รายละเอียดสินค้า
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    data['productName'] ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "ผู้รับ : ${data['receiverPhone'] ?? '-'}",
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "[1]: ${data['status'] ?? 'ไม่มีสถานะ'}",
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.brown,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                      //       // 📋 รายละเอียดสินค้า
+                      //       Expanded(
+                      //         child: Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               data['productName'] ?? '',
+                      //               style: const TextStyle(
+                      //                 fontSize: 18,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //             const SizedBox(height: 4),
+                      //             Text(
+                      //               "ผู้รับ : ${data['receiverPhone'] ?? '-'}",
+                      //               style: const TextStyle(fontSize: 14),
+                      //             ),
+                      //             const SizedBox(height: 4),
+                      //             Text(
+                      //               "[1]: ${data['status'] ?? 'ไม่มีสถานะ'}",
+                      //               style: const TextStyle(
+                      //                 fontSize: 14,
+                      //                 color: Colors.brown,
+                      //                 fontWeight: FontWeight.w500,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // );
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailPage(
+                                productData: data,
+                                senderName: data['senderName'] ?? '-',
+                                senderPhone: data['senderPhone'] ?? '-',
                               ),
                             ),
-                          ],
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFE5CC),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 🖼 รูปภาพสินค้า
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child:
+                                    data['productImage'] != null &&
+                                        data['productImage']
+                                            .toString()
+                                            .isNotEmpty
+                                    ? Image.memory(
+                                        base64Decode(data['productImage']),
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'assets/no_image.png',
+                                        width: 80,
+                                        height: 80,
+                                      ),
+                              ),
+                              const SizedBox(width: 10),
+
+                              // 📋 รายละเอียดสินค้า
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      data['productName'] ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "ผู้รับ : ${data['receiverPhone'] ?? '-'}",
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "[สถานะ]: ${data['status'] ?? 'ไม่มีสถานะ'}",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.brown,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

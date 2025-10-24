@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_app/pages/customer/homepage_customer.dart';
 import 'package:delivery_app/pages/login.dart';
+import 'package:delivery_app/pages/rider/ProductDetailPage.dart';
 import 'package:flutter/material.dart';
 
 class HomepageReceiver extends StatefulWidget {
@@ -116,66 +117,145 @@ class _HomepageReceiverState extends State<HomepageReceiver> {
                       final data =
                           products[index].data() as Map<String, dynamic>;
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFFFE1C0),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // 🖼 รูปภาพสินค้า
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child:
-                                  data['productImage'] != null &&
-                                      data['productImage'].toString().isNotEmpty
-                                  ? Image.memory(
-                                      base64Decode(data['productImage']),
-                                      width: 90,
-                                      height: 90,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      'assets/no_image.png',
-                                      width: 90,
-                                      height: 90,
-                                    ),
-                            ),
-                            const SizedBox(width: 10),
+                      // return Container(
+                      //   margin: const EdgeInsets.symmetric(vertical: 8),
+                      //   padding: const EdgeInsets.all(8),
+                      //   decoration: BoxDecoration(
+                      //     color: const Color(0xFFFFE1C0),
+                      //     borderRadius: BorderRadius.circular(10),
+                      //   ),
+                      //   child: Row(
+                      //     crossAxisAlignment: CrossAxisAlignment.start,
+                      //     children: [
+                      //       // 🖼 รูปภาพสินค้า
+                      //       ClipRRect(
+                      //         borderRadius: BorderRadius.circular(8),
+                      //         child:
+                      //             data['productImage'] != null &&
+                      //                 data['productImage'].toString().isNotEmpty
+                      //             ? Image.memory(
+                      //                 base64Decode(data['productImage']),
+                      //                 width: 90,
+                      //                 height: 90,
+                      //                 fit: BoxFit.cover,
+                      //               )
+                      //             : Image.asset(
+                      //                 'assets/no_image.png',
+                      //                 width: 90,
+                      //                 height: 90,
+                      //               ),
+                      //       ),
+                      //       const SizedBox(width: 10),
 
-                            // 📋 รายละเอียดสินค้า
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    data['productName'] ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    "ผู้รับ : ${data['receiverPhone'] ?? '-'}",
-                                    style: const TextStyle(fontSize: 14),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  const Text(
-                                    "[1]: รอไรเดอร์มารับสินค้า",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.red,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
+                      //       // 📋 รายละเอียดสินค้า
+                      //       Expanded(
+                      //         child: Column(
+                      //           crossAxisAlignment: CrossAxisAlignment.start,
+                      //           children: [
+                      //             Text(
+                      //               data['productName'] ?? '',
+                      //               style: const TextStyle(
+                      //                 fontSize: 16,
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //             const SizedBox(height: 4),
+                      //             Text(
+                      //               "ผู้ส่ง : ${data['senderPhone'] ?? '-'}",
+                      //               style: const TextStyle(fontSize: 14),
+                      //             ),
+                      //             const SizedBox(height: 4),
+                      //             const Text(
+                      //               "[1]: รอไรเดอร์มารับสินค้า",
+                      //               style: TextStyle(
+                      //                 fontSize: 14,
+                      //                 color: Colors.red,
+                      //                 fontWeight: FontWeight.w600,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // );
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProductDetailPage(
+                                productData: data,
+                                senderName: data['senderName'] ?? '-',
+                                senderPhone: data['senderPhone'] ?? '-',
+                                showSenderLocation: true,
                               ),
                             ),
-                          ],
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 8),
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFE5CC),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // 🖼 รูปภาพสินค้า
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child:
+                                    data['productImage'] != null &&
+                                        data['productImage']
+                                            .toString()
+                                            .isNotEmpty
+                                    ? Image.memory(
+                                        base64Decode(data['productImage']),
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'assets/no_image.png',
+                                        width: 80,
+                                        height: 80,
+                                      ),
+                              ),
+                              const SizedBox(width: 10),
+
+                              // 📋 รายละเอียดสินค้า
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      data['productName'] ?? '',
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "ผู้ส่ง : ${data['senderPhone'] ?? '-'}",
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      "[สถานะ]: ${data['status'] ?? 'ไม่มีสถานะ'}",
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.brown,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },
