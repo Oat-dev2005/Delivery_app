@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:delivery_app/pages/login.dart';
 import 'package:delivery_app/pages/rider/ProductDetailPage.dart';
+import 'package:delivery_app/pages/rider/RiderCurrentJobPage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -25,6 +27,30 @@ class HomepageRider extends StatefulWidget {
 class _HomepageRiderState extends State<HomepageRider> {
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
+  Future<void> _checkLocationPermission() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // ตรวจว่าเปิด GPS หรือยัง
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return; // ผู้ใช้ไม่อนุญาต
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return; // ผู้ใช้ปิดถาวร
+    }
+  }
+
   StreamSubscription<Position>? positionStream;
 
   void startSendingLocation(String productId) {
@@ -43,7 +69,7 @@ class _HomepageRiderState extends State<HomepageRider> {
             'productId': productId, // ระบุว่าเป็นงานไหน
           });
 
-          // อัปเดตตำแหน่งในเอกสารสินค้าด้วย (ถ้าต้องการ)
+          // อัปเดตตำแหน่งใน doc สินค้าด้วย
           await db.collection("Products").doc(productId).update({
             "riderLat": position.latitude,
             "riderLng": position.longitude,
@@ -52,13 +78,52 @@ class _HomepageRiderState extends State<HomepageRider> {
         });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _checkLocationPermission();
+    checkCurrentJob();
+  }
+
+  Future<void> checkCurrentJob() async {
+    final userDoc = await db.collection('Users').doc(widget.userId).get();
+    final currentJobId = userDoc.data()?['currentJobId'];
+    if (currentJobId != null && currentJobId.toString().isNotEmpty) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => RiderCurrentJobPage(
+            productId: currentJobId,
+            riderId: widget.userId,
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> acceptJob(String productId) async {
     try {
+      final userRef = db.collection("Users").doc(widget.userId);
+      final userDoc = await userRef.get();
+
+      // เช็คว่ามีงานอยู่แล้วไหม
+      if (userDoc.exists &&
+          (userDoc.data()?['currentJobId'] ?? '').isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("คุณมีงานที่ยังไม่เสร็จ ❗")),
+        );
+        return;
+      }
+
+      // อัปเดตสถานะสินค้า
       await db.collection("Products").doc(productId).update({
         "riderId": widget.userId,
         "riderPhone": widget.phone,
         "status": "ไรเดอร์รับงานแล้ว (กำลังเดินทางมารับสินค้า)",
       });
+
+      // บันทึกงานปัจจุบันของไรเดอร์
+      await userRef.update({"currentJobId": productId});
 
       // เริ่มส่งตำแหน่งเรียลไทม์
       startSendingLocation(productId);
@@ -66,6 +131,15 @@ class _HomepageRiderState extends State<HomepageRider> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("รับงานเรียบร้อย ✅")));
+
+      // ไปหน้าแสดงรายละเอียดงาน
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              RiderCurrentJobPage(productId: productId, riderId: widget.userId),
+        ),
+      );
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -136,7 +210,9 @@ class _HomepageRiderState extends State<HomepageRider> {
             itemBuilder: (context, index) {
               final data = products[index].data() as Map<String, dynamic>;
               final productId = products[index].id;
-              final hasRider = data.containsKey('riderId');
+              final hasRider =
+                  data.containsKey('riderId') &&
+                  (data['riderId'] ?? '').toString().isNotEmpty;
 
               return FutureBuilder<Map<String, String>>(
                 future: getSenderInfo(data['senderId'] ?? ''),
@@ -146,14 +222,12 @@ class _HomepageRiderState extends State<HomepageRider> {
 
                   return GestureDetector(
                     onTap: () {
-                      // กดไปหน้า detail
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ProductDetailPage(
                             productData: data,
                             senderName: senderName,
-                            senderPhone: senderPhone,
                           ),
                         ),
                       );
@@ -198,21 +272,11 @@ class _HomepageRiderState extends State<HomepageRider> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  "ผู้ส่ง: $senderName",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  "เบอร์ผู้ส่ง: $senderPhone",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                Text(
-                                  "ผู้รับ: ${data['receiverName'] ?? '-'}",
-                                  style: const TextStyle(fontSize: 14),
-                                ),
+                                Text("ผู้ส่ง: $senderName"),
+                                Text("เบอร์ผู้ส่ง: $senderPhone"),
+                                Text("ผู้รับ: ${data['receiverName'] ?? '-'}"),
                                 Text(
                                   "เบอร์ผู้รับ: ${data['receiverPhone'] ?? '-'}",
-                                  style: const TextStyle(fontSize: 14),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(

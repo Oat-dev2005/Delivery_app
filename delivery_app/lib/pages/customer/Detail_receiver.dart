@@ -1,34 +1,38 @@
 import 'dart:convert';
+import 'package:delivery_app/pages/rider/Riderlocation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-class ProductDetailPage extends StatelessWidget {
+class Detail_receiver extends StatelessWidget {
   final Map<String, dynamic> productData;
   final String senderName;
+  final String senderPhone;
 
-  const ProductDetailPage({
+  const Detail_receiver({
     super.key,
     required this.productData,
     required this.senderName,
+    required this.senderPhone,
   });
 
   @override
   Widget build(BuildContext context) {
     // ตรวจสอบตำแหน่งผู้รับ (ถ้ามี)
-    Map<String, double>? receiverLocation;
-    if (productData['receiverLocation'] != null) {
-      receiverLocation = {
-        'lat': productData['receiverLocation']['lat'],
-        'lng': productData['receiverLocation']['lng'],
+    Map<String, double>? senderLocation;
+    if (productData['senderLocation'] != null) {
+      senderLocation = {
+        'lat': productData['senderLocation']['lat'],
+        'lng': productData['senderLocation']['lng'],
       };
     }
 
     // ตรวจสอบเบอร์ผู้ส่ง fallback
     String senderPhone =
-        productData['senderPhone'] != null && productData['senderPhone'].toString().isNotEmpty
-            ? productData['senderPhone']
-            : '-';
+        productData['senderPhone'] != null &&
+            productData['senderPhone'].toString().isNotEmpty
+        ? productData['senderPhone']
+        : '-';
 
     // ✅ ดึงรูปที่ไรเดอร์อัพโหลด
     final String? pickupImage = productData['pickupImage'];
@@ -36,7 +40,7 @@ class ProductDetailPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("รายละเอียดสินค้า"),
+        title: const Text("รายละเอียดสินค้า (receiver)"),
         backgroundColor: const Color(0xFFFF8C42),
       ),
       body: SingleChildScrollView(
@@ -47,7 +51,8 @@ class ProductDetailPage extends StatelessWidget {
             // รูปสินค้า
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: productData['productImage'] != null &&
+              child:
+                  productData['productImage'] != null &&
                       productData['productImage'].toString().isNotEmpty
                   ? Image.memory(
                       base64Decode(productData['productImage']),
@@ -93,7 +98,9 @@ class ProductDetailPage extends StatelessWidget {
                     const SizedBox(height: 5),
                     Text('👤 ผู้รับ: ${productData['receiverName'] ?? '-'}'),
                     const SizedBox(height: 5),
-                    Text('📞 เบอร์ผู้รับ: ${productData['receiverPhone'] ?? '-'}'),
+                    Text(
+                      '📞 เบอร์ผู้รับ: ${productData['receiverPhone'] ?? '-'}',
+                    ),
                     const SizedBox(height: 5),
                     Text('📍 สถานะ: ${productData['status'] ?? '-'}'),
                   ],
@@ -102,13 +109,13 @@ class ProductDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // แผนที่ผู้รับ
-            if (receiverLocation != null)
+            // แผนที่ผู้ส่ง
+            if (senderLocation != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "ตำแหน่งผู้รับสินค้า",
+                    "ตำแหน่งผู้ส่งสินค้า",
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -127,8 +134,8 @@ class ProductDetailPage extends StatelessWidget {
                       child: FlutterMap(
                         options: MapOptions(
                           initialCenter: LatLng(
-                            receiverLocation['lat']!,
-                            receiverLocation['lng']!,
+                            senderLocation['lat']!,
+                            senderLocation['lng']!,
                           ),
                           initialZoom: 15,
                         ),
@@ -142,8 +149,8 @@ class ProductDetailPage extends StatelessWidget {
                             markers: [
                               Marker(
                                 point: LatLng(
-                                  receiverLocation['lat']!,
-                                  receiverLocation['lng']!,
+                                  senderLocation['lat']!,
+                                  senderLocation['lng']!,
                                 ),
                                 width: 50,
                                 height: 50,
@@ -203,6 +210,38 @@ class ProductDetailPage extends StatelessWidget {
                   width: double.infinity,
                   height: 200,
                   fit: BoxFit.cover,
+                ),
+              ),
+            ],
+
+            if (productData['status'] ==
+                    'ไรเดอร์รับงานแล้ว (กำลังเดินทางมารับสินค้า)' ||
+                productData['status'] ==
+                    'ไรเดอร์รับสินค้าแล้ว กำลังเดินทางไปส่ง 🚚') ...[
+              const SizedBox(height: 20),
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF8C42),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 12,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RiderlocationPage(
+                          riderId: productData['riderId'], // ต้องมีใน Firestore
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "ดูตำแหน่งไรเดอร์",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
               ),
             ],
